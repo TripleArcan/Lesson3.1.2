@@ -12,6 +12,7 @@
             <th>Id</th>
             <th>Name</th>
             <th>LastName</th>
+            <th>Roles</th>
         </tr>
         <tr th:each ="user : ${users}">
             <td th:utext="${user.id}">...</td>
@@ -21,6 +22,18 @@
                 <ul>
                     <li th:each="role : ${user.roles}" th:text="${role.name}"></li>
                 </ul>
+            </td>
+            <td>
+                <form th:action="@{/admin/delete}" method="post">
+                    <input type="hidden" name="userName" th:value="${user.username}" />
+                    <button type="submit">Удалить</button>
+                </form>
+            </td>
+            <td>
+                <form th:action="@{/admin/edit}" method="get">
+                    <input type="hidden" name="userName" th:value="${user.username}" />
+                    <button type="submit">Изменить</button>
+                </form>
             </td>
         </tr>
     </table>

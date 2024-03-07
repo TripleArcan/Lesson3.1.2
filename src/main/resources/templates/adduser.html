@@ -7,9 +7,9 @@
 </head>
 <body>
 
-<form th:method="POST" th:action="@{/adduser}" th:object="${user}">
-    <label for="name">Введите имя: </label>
-    <input type="text" th:field="*{name}" id="name"/>
+<form th:method="POST" th:action="@{/admin/adduser}" th:object="${user}">
+    <label for="username">Введите имя: </label>
+    <input type="text" th:field="*{name}" id="username"/>
     <br/>
     <label for="lastName">Введите фамилию: </label>
     <input type="text" th:field="*{lastName}" id="lastName"/>

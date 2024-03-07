@@ -7,86 +7,72 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
-import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
-import ru.kata.spring.boot_security.demo.repositories.UsersRepository;
-import ru.kata.spring.boot_security.demo.servise.UserService;
+import ru.kata.spring.boot_security.demo.services.RoleService;
+import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.util.List;
 
 
 @Controller
+@RequestMapping("/admin")
 public class AdminController {
 
-    private final UsersRepository usersRepository;
-    private final RoleRepository roleRepository;
+    private final RoleService roleService;
     private final UserService userService;
 
-    public AdminController(UsersRepository usersRepository, RoleRepository roleRepository, UserService userService) {
-        this.usersRepository = usersRepository;
-        this.roleRepository = roleRepository;
+    public AdminController(RoleService roleService, UserService userService) {
+        this.roleService = roleService;
         this.userService = userService;
     }
 
-    @GetMapping(value = "/allusers")
+    @GetMapping("/allusers")
     public String printAllUsers(ModelMap modelMap) {
         modelMap.addAttribute("users", userService.getAllUsers());
         return "allusers";
     }
 
-    @GetMapping(value = "/adduser")
+    @GetMapping("/adduser")
     public ModelAndView newUser() {
         User user = new User();
         ModelAndView mav = new ModelAndView("adduser");
         mav.addObject("user", user);
 
-        List<Role> roles = roleRepository.findAll();
+        List<Role> roles = roleService.getAllRoles();
 
         mav.addObject("allRoles", roles);
 
         return mav;
     }
 
-    @PostMapping(value = "/adduser")
+    @PostMapping("/adduser")
     public String addUser(@ModelAttribute("user") User user) {
         userService.addUser(user);
-        return "redirect:/allusers";
+        return "redirect:/admin/allusers";
     }
 
-    @GetMapping("/deleteuser")
-    public String showDeleteUser() {
-        return "delete";
+    @PostMapping("/delete")
+    public String deleteUser(@RequestParam("userName") String userName) {
+        userService.deleteUser(userName);
+        return "redirect:/admin/allusers";
     }
 
-    @PostMapping("/deleteuser")
-    public String DeleteUser(@RequestParam("id") Long id) {
-        userService.deleteUser(id);
-        return "redirect:/allusers";
-    }
-
-    @GetMapping("/edituser")
-    public ModelAndView showUpdateUserForm(@RequestParam("id") Long id) {
-        User user = userService.getUserById(id);
+    @GetMapping("/edit")
+    public ModelAndView showUpdateUserForm(@RequestParam("userName") String name) {
+        User user = userService.getUserByUsername(name);
         ModelAndView mav = new ModelAndView("edit");
         mav.addObject("user", user);
 
-        List<Role> roles = roleRepository.findAll();
+        List<Role> roles = roleService.getAllRoles();
 
         mav.addObject("allRoles", roles);
 
         return mav;
     }
 
-    //@GetMapping("/edituser")
-    //public String showUpdateUserForm(@RequestParam("id") Long id, Model model) {
-    //    User user = userService.getUserById(id);
-    //    model.addAttribute("user", user);
-    //    return "edit";
-    //}
-
-    @PostMapping("/edituser")
+    @PostMapping("/edit")
     public String updateUser(@ModelAttribute("user") User user) {
         userService.updateUser(user);
-        return "redirect:/allusers";
+        return "redirect:/admin/allusers";
     }
 
 }

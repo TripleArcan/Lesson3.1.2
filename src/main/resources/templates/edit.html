@@ -7,7 +7,7 @@
 </head>
 <body>
 
-<form th:method="POST" th:action="@{/edituser}" th:object="${user}">
+<form th:method="POST" th:action="@{/admin/edit}" th:object="${user}">
     <input type="hidden" th:field="*{id}" />
     <label for="name">Имя: </label>
     <input type="text" th:field="*{name}" id="name"/>
