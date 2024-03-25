@@ -1,5 +1,8 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.ui.ModelMap;
@@ -11,10 +14,10 @@ import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
 import java.util.List;
+import java.util.stream.Collectors;
 
 
 @Controller
-@RequestMapping("/admin")
 public class AdminController {
 
     private final RoleService roleService;
@@ -25,41 +28,51 @@ public class AdminController {
         this.userService = userService;
     }
 
-    @GetMapping("/allusers")
-    public String printAllUsers(ModelMap modelMap) {
-        modelMap.addAttribute("users", userService.getAllUsers());
-        return "allusers";
-    }
-
-    @GetMapping("/adduser")
-    public ModelAndView newUser() {
-        User user = new User();
-        ModelAndView mav = new ModelAndView("adduser");
-        mav.addObject("user", user);
-
+    @GetMapping("/admin")
+    public ModelAndView printAllUsers() {
+        ModelAndView mav = new ModelAndView("admin");
+        mav.addObject("users", userService.getAllUsers());
+        mav.addObject("user", new User());
         List<Role> roles = roleService.getAllRoles();
-
         mav.addObject("allRoles", roles);
-
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String username = authentication.getName();
+        List<String> authenticationRoles = authentication.getAuthorities().stream()
+                .map(GrantedAuthority::getAuthority)
+                .collect(Collectors.toList());
+        mav.addObject("username", username);
+        mav.addObject("authenticationRoles", authenticationRoles);
         return mav;
     }
+
+    //@GetMapping("/adduser")
+    //public ModelAndView newUser() {
+    //    ModelAndView mav = new ModelAndView("admin");
+    //    mav.addObject("user", new User());
+//
+    //    List<Role> roles = roleService.getAllRoles();
+//
+    //    mav.addObject("allRoles", roles);
+//
+    //    return mav;
+    //}
 
     @PostMapping("/adduser")
     public String addUser(@ModelAttribute("user") User user) {
         userService.addUser(user);
-        return "redirect:/admin/allusers";
+        return "redirect:/admin";
     }
 
     @PostMapping("/delete")
     public String deleteUser(@RequestParam("userName") String userName) {
         userService.deleteUser(userName);
-        return "redirect:/admin/allusers";
+        return "redirect:/admin";
     }
 
     @GetMapping("/edit")
-    public ModelAndView showUpdateUserForm(@RequestParam("userName") String name) {
+    public ModelAndView updateUserForm(@RequestParam("userName") String name) {
         User user = userService.getUserByUsername(name);
-        ModelAndView mav = new ModelAndView("edit");
+        ModelAndView mav = new ModelAndView("admin");
         mav.addObject("user", user);
 
         List<Role> roles = roleService.getAllRoles();
@@ -70,9 +83,9 @@ public class AdminController {
     }
 
     @PostMapping("/edit")
-    public String updateUser(@ModelAttribute("user") User user) {
+    public String updateUser(@ModelAttribute User user) {
         userService.updateUser(user);
-        return "redirect:/admin/allusers";
+        return "redirect:/admin"; // Возвращаем имя представления с фрагментом модального окна
     }
 
 }

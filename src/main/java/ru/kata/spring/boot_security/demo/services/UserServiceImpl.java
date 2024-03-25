@@ -5,6 +5,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Lazy;
 import org.springframework.context.support.ClassPathXmlApplicationContext;
 import org.springframework.security.access.method.P;
+import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -16,11 +17,14 @@ import ru.kata.spring.boot_security.demo.configs.WebSecurityConfig;
 import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repositories.UsersRepository;
+
+import java.util.Collection;
 import java.util.List;
 import java.util.stream.Collectors;
 
 
 @Service
+@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UsersRepository usersRepository;
@@ -80,5 +84,6 @@ public class UserServiceImpl implements UserService {
         }
         return user;
     }
+
 
 }
