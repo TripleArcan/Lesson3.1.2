@@ -45,25 +45,13 @@ public class AdminController {
         return mav;
     }
 
-    //@GetMapping("/adduser")
-    //public ModelAndView newUser() {
-    //    ModelAndView mav = new ModelAndView("admin");
-    //    mav.addObject("user", new User());
-//
-    //    List<Role> roles = roleService.getAllRoles();
-//
-    //    mav.addObject("allRoles", roles);
-//
-    //    return mav;
-    //}
-
     @PostMapping("/adduser")
     public String addUser(@ModelAttribute("user") User user) {
         userService.addUser(user);
         return "redirect:/admin";
     }
 
-    @PostMapping("/delete")
+    @DeleteMapping("/delete")
     public String deleteUser(@RequestParam("userName") String userName) {
         userService.deleteUser(userName);
         return "redirect:/admin";
@@ -85,7 +73,7 @@ public class AdminController {
     @PostMapping("/edit")
     public String updateUser(@ModelAttribute User user) {
         userService.updateUser(user);
-        return "redirect:/admin"; // Возвращаем имя представления с фрагментом модального окна
+        return "redirect:/admin";
     }
 
 }
