@@ -18,6 +18,7 @@ import java.util.stream.Collectors;
 
 
 @Controller
+@RequestMapping("admin")
 public class AdminController {
 
     private final RoleService roleService;
@@ -28,7 +29,7 @@ public class AdminController {
         this.userService = userService;
     }
 
-    @GetMapping("/admin")
+    @GetMapping("/adminpage")
     public ModelAndView printAllUsers() {
         ModelAndView mav = new ModelAndView("admin");
         mav.addObject("users", userService.getAllUsers());
@@ -48,13 +49,13 @@ public class AdminController {
     @PostMapping("/adduser")
     public String addUser(@ModelAttribute("user") User user) {
         userService.addUser(user);
-        return "redirect:/admin";
+        return "redirect:/admin/adminpage";
     }
 
     @DeleteMapping("/delete")
     public String deleteUser(@RequestParam("userName") String userName) {
         userService.deleteUser(userName);
-        return "redirect:/admin";
+        return "redirect:/admin/adminpage";
     }
 
     @GetMapping("/edit")
@@ -73,7 +74,7 @@ public class AdminController {
     @PostMapping("/edit")
     public String updateUser(@ModelAttribute User user) {
         userService.updateUser(user);
-        return "redirect:/admin";
+        return "redirect:/admin/adminpage";
     }
 
 }
