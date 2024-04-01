@@ -1,26 +1,15 @@
 package ru.kata.spring.boot_security.demo.services;
 
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Bean;
-import org.springframework.context.annotation.Lazy;
-import org.springframework.context.support.ClassPathXmlApplicationContext;
-import org.springframework.security.access.method.P;
-import org.springframework.security.core.GrantedAuthority;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import ru.kata.spring.boot_security.demo.configs.WebSecurityConfig;
-import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.repositories.UsersRepository;
 
-import java.util.Collection;
 import java.util.List;
-import java.util.stream.Collectors;
+import java.util.Optional;
 
 
 @Service
@@ -31,7 +20,6 @@ public class UserServiceImpl implements UserService {
 
 
     private final PasswordEncoder passwordEncoder;
-
 
 
     public UserServiceImpl(UsersRepository usersRepository, PasswordEncoder passwordEncoder) {
@@ -49,6 +37,7 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void addUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
+
         usersRepository.save(user);
     }
 
@@ -58,22 +47,34 @@ public class UserServiceImpl implements UserService {
         usersRepository.deleteByUsername(name);
     }
 
-
+    @Override
+    public String setPasswordEncoder(String password) {
+        return passwordEncoder.encode(password);
+    }
 
 
     @Override
     @Transactional
     public void updateUser(User user) {
-        user.setPassword(passwordEncoder.encode(user.getPassword()));
         usersRepository.save(user);
     }
 
     @Override
-    public User getUserByUsername(String username) {
-        if(usersRepository.findByUsername(username) == null) {
-            throw new UsernameNotFoundException("User not found");
+    public User getUserById(Long id) {
+        Optional<User> optionalUser = usersRepository.findById(id);
+        if (optionalUser.isPresent()) {
+            User user = optionalUser.get();
+
+            user.getRoles().size();
+            return user;
+        } else {
+            throw new UsernameNotFoundException("Пользователь с id " + id + " не найден");
         }
-        return usersRepository.findByUsername(username);
+    }
+
+    @Override
+    public User getUserByUsername(String name) {
+        return usersRepository.findByUsername(name);
     }
 
     @Override

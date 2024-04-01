@@ -1,5 +1,7 @@
 package ru.kata.spring.boot_security.demo.controllers;
 
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -13,11 +15,13 @@ import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.services.RoleService;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 
-@Controller
+@RestController
 @RequestMapping("admin")
 public class AdminController {
 
@@ -29,13 +33,19 @@ public class AdminController {
         this.userService = userService;
     }
 
+    @GetMapping("/adminJSON")
+    public List<User> getAllUsers() {
+        return userService.getAllUsers();
+    }
+
+    @GetMapping("/userByIdJSON")
+    public User getUserById(@RequestParam("userId") Long id) {
+        return userService.getUserById(id);
+    }
+
     @GetMapping("/adminpage")
     public ModelAndView printAllUsers() {
         ModelAndView mav = new ModelAndView("admin");
-        mav.addObject("users", userService.getAllUsers());
-        mav.addObject("user", new User());
-        List<Role> roles = roleService.getAllRoles();
-        mav.addObject("allRoles", roles);
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String username = authentication.getName();
         List<String> authenticationRoles = authentication.getAuthorities().stream()
@@ -47,34 +57,34 @@ public class AdminController {
     }
 
     @PostMapping("/adduser")
-    public String addUser(@ModelAttribute("user") User user) {
+    @ResponseBody
+    public ResponseEntity<String> addUser(@RequestBody User user) {
         userService.addUser(user);
-        return "redirect:/admin/adminpage";
+        return ResponseEntity.ok("Пользователь успешно добавлен");
     }
 
     @DeleteMapping("/delete")
-    public String deleteUser(@RequestParam("userName") String userName) {
+    public void deleteUser(@RequestParam("userName") String userName) {
         userService.deleteUser(userName);
-        return "redirect:/admin/adminpage";
     }
 
-    @GetMapping("/edit")
-    public ModelAndView updateUserForm(@RequestParam("userName") String name) {
-        User user = userService.getUserByUsername(name);
-        ModelAndView mav = new ModelAndView("admin");
-        mav.addObject("user", user);
+    @PutMapping("/edit")
+    public User updateUser(@RequestBody User user) {
+        User existingUser = userService.getUserById(user.getId());
 
-        List<Role> roles = roleService.getAllRoles();
+        String userPass = user.getPassword();
+        String exPass = existingUser.getPassword();
+        if (!userPass.equals(exPass)) {
+            String encodedPassword = userService.setPasswordEncoder(user.getPassword());
+            existingUser.setPassword(encodedPassword);
+        }
 
-        mav.addObject("allRoles", roles);
+        existingUser.setName(user.getUsername());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setRoles(user.getRoles());
 
-        return mav;
-    }
-
-    @PostMapping("/edit")
-    public String updateUser(@ModelAttribute User user) {
-        userService.updateUser(user);
-        return "redirect:/admin/adminpage";
+        userService.updateUser(existingUser);
+        return user;
     }
 
 }

@@ -13,8 +13,11 @@ public interface UsersRepository extends JpaRepository<User, Long> {
     @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles")
     List<User> findAll();
 
-    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles WHERE u.username = :name")
-    User findByUsername(String name);
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles WHERE u.username = :username")
+    User findByUsername(String username);
+
+    @Query("SELECT DISTINCT u FROM User u LEFT JOIN FETCH u.roles WHERE u.id = :id")
+    Optional<User> findById(Long id);
 
     void deleteByUsername(String username);
 }

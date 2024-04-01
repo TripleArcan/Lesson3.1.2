@@ -46,7 +46,7 @@
             <div class="sidebar-sticky">
                 <ul class="nav flex-column">
                     <li class="nav-item">
-                        <a class="nav-link active" th:href="@{/admin}">Admin</a>
+                        <a class="nav-link active" th:href="@{/admin/adminpage}">Admin</a>
                     </li>
                     <li class="nav-item">
                         <a class="nav-link" th:href="@{/user}">User</a>
@@ -88,31 +88,8 @@
                                         <th></th>
                                     </tr>
                                     </thead>
-                                    <tbody>
-                                    <tr th:each="user : ${users}">
-                                        <td th:text="${user.id}"></td>
-                                        <td th:text="${user.name}"></td>
-                                        <td th:text="${user.lastName}"></td>
-                                        <td>
-                                            <ul>
-                                                <li th:each="role : ${user.roles}" th:text="${role.name}"></li>
-                                            </ul>
-                                        </td>
-                                        <td>
-                                            <form th:action="@{/admin/delete}" method="post">
-                                                <input type="hidden" name="_method" value="delete">
-                                                <input type="hidden" name="userName" th:value="${user.username}"/>
-                                                <button type="submit" class="btn btn-danger">Удалить</button>
-                                            </form>
-                                        </td>
-                                        <td>
-                                            <button id="editUser" type="button" class="btn btn-primary"
-                                                    data-toggle="modal"
-                                                    onclick="openModal(this)" th:data-userName="user.username">
-                                                Изменить
-                                            </button>
-                                        </td>
-                                    </tr>
+                                    <tbody id="tableUsers">
+
                                     </tbody>
                                 </table>
                             </div>
@@ -122,31 +99,27 @@
                                 <div class="card">
                                     <div class="card-body">
                                         <h5 class="card-title">Добавить пользователя</h5>
-                                        <form th:method="POST" th:action="@{/admin/adduser}" th:object="${user}">
+                                        <form id="addUserForm">
                                             <div class="form-group">
                                                 <label for="username">Введите имя:</label>
-                                                <input type="text" th:field="*{name}" class="form-control" id="username"
-                                                       required>
+                                                <input type="text" class="form-control" id="username" required>
                                             </div>
                                             <div class="form-group">
                                                 <label for="lastName">Введите фамилию:</label>
-                                                <input type="text" th:field="*{lastName}" class="form-control"
-                                                       id="lastName" required>
+                                                <input type="text" class="form-control" id="lastName" required>
                                             </div>
                                             <div class="form-group">
                                                 <label for="password">Введите пароль:</label>
-                                                <input type="password" th:field="*{password}" class="form-control"
-                                                       id="password" required>
+                                                <input type="password" class="form-control" id="password" required>
                                             </div>
                                             <div class="form-group">
                                                 <label for="newRoles">Role</label>
                                                 <select multiple class="form-control" id="newRoles" name="roles">
-                                                    <option th:each="role : ${allRoles}"
-                                                            th:text="${role.name}"
-                                                            th:value="${role.id}">
+                                                    <option value="8 ROLE_ADMIN">Admin</option>
+                                                    <option value="7 ROLE_USER">User</option>
                                                 </select>
                                             </div>
-                                            <button type="submit" class="btn btn-primary">Добавить</button>
+                                            <button type="submit" class="btn btn-primary" onclick="addUser()">Добавить</button>
                                         </form>
                                     </div>
                                 </div>
@@ -169,29 +142,29 @@
                 </button>
             </div>
             <div class="modal-body">
-                <form th:method="POST" th:action="@{/admin/edit}" th:object="${user}">
+                <form th:method="POST" th:action="@{/admin/edit}">
                     <label for="idEdit">ID: </label>
-                    <input class="form-control" type="text" th:field="*{id}" readonly id="idEdit">
+                    <input class="form-control" type="text" readonly id="idEdit">
                     <label for="usernameEdit">Name: </label>
-                    <input class="form-control" type="text" th:field="*{name}" id="usernameEdit"
+                    <input class="form-control" type="text" id="usernameEdit"
                            name="username">
                     <label for="lastNameEdit">Lastname: </label>
-                    <input class="form-control" type="text" th:field="*{lastName}" id="lastNameEdit"
+                    <input class="form-control" type="text" id="lastNameEdit"
                            name="lastName">
                     <label for="passwordEdit">Password: </label>
-                    <input class="form-control" type="password" th:field="*{password}"
+                    <input class="form-control" type="password"
                            id="passwordEdit">
                     <br/>
                     <p>
-                        <label>Roles:
-                            <input type="checkbox" name="roles"
-                                   th:each="role : ${allRoles}"
-                                   th:text="${role.name}"
-                                   th:value="${role.id}"
-                                   th:field="*{roles}"
-                            />
-                        </label>
+                        <label>Roles:</label><br/>
+                        <label>
+                            <input type="checkbox" name="roles" value="8 ROLE_ADMIN"/>
+                        </label> Admin<br/>
+                        <label>
+                            <input type="checkbox" name="roles" value="7 ROLE_USER"/>
+                        </label> User<br/>
                     </p>
+                    <button type="submit" class="btn btn-primary">Save changes</button>
                 </form>
             </div>
             <div class="modal-footer">
@@ -202,9 +175,7 @@
         </div>
     </div>
 </div>
-<script src="https://code.jquery.com/jquery-3.3.1.min.js"
-        integrity="sha384-tsQFqpEReu7ZLhBV2VZlAu7zcOV+rXbYlF2cqB8txI/8aZajjp4Bqd+V6D5IgvKT"
-        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js"
         integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1"
         crossorigin="anonymous"></script>
@@ -212,24 +183,155 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 <script>
-    function openModal(button) {
-        var modal = $('#EditModal');
-        var row = $(button).closest('tr');
-        var cells = row.find('td');
+    function getAllUser() {
+        fetch("/admin/adminJSON")
+            .then(response => response.json())
+            .then(data => {
+                const tableBody = document.querySelector("#tableUsers");
 
-        var id = cells.eq(0).text();
-        var name = cells.eq(1).text();
-        var lastName = cells.eq(2).text();
+                data.forEach(user => {
+                    const row = `
+                    <tr>
+                        <td>${user.id}</td>
+                        <td>${user.username}</td>
+                        <td>${user.lastName}</td>
+                        <td>${user.roles.map(role => role.name).join(", ")}</td>
+                        <td>
+                            <button type="button" class="btn btn-danger" onclick="deleteUser('${user.username}')">Удалить</button>
+                        </td>
 
-        modal.find('#idEdit').val(id);
-        modal.find('#usernameEdit').val(name);
-        modal.find('#lastNameEdit').val(lastName);
+                        <td>
+                            <button class="btn btn-primary" onclick="openModal('${user.id}')">Изменить</button>
+                        </td>
+                    </tr>
 
-        modal.modal('show');
+            `;
+                    tableBody.insertAdjacentHTML("beforeend", row);
+                });
+            })
+            .catch(error => console.error("Ошибка загрузки пользователей:", error));
+    }
+
+    getAllUser();
+
+    function deleteUser(username) {
+        fetch(`/admin/delete?userName=${username}`, {
+            method: "DELETE",
+            headers: {
+                "Content-Type": "application/json"
+            }
+        })
+            .then(data => {
+                console.log("Пользователь удален:", data);
+
+                const rowToRemove = document.querySelector(`tr[data-username="${username}"]`);
+                if (rowToRemove) {
+                    rowToRemove.remove();
+                }
+            })
+            .catch(error => {
+                console.error("Не удалось удалить пользователя:", error);
+            });
+    }
+
+
+    function getUserById(userId) {
+        fetch(`/admin/userByIdJSON?userId=${userId}`)
+            .then(response => response.json())
+            .then(user => {
+                const modal = $('#EditModal');
+                modal.find('#idEdit').val(user.id);
+                modal.find('#usernameEdit').val(user.username);
+                modal.find('#lastNameEdit').val(user.lastName);
+                modal.find('#passwordEdit').val(user.password);
+                user.roles.forEach(role => {
+                    modal.find(`[value="${role.id}"]`).prop('checked', true);
+                });
+
+                modal.modal('show');
+            })
+            .catch(error => console.error("Ошибка загрузки пользователя:", error));
+    }
+
+    function openModal(userId) {
+        getUserById(userId);
+    }
+
+    function addUser() {
+        const modal = $('#addUserForm');
+        const username = modal.find('#username').val();
+        const lastName = modal.find('#lastName').val();
+        const password = modal.find('#password').val();
+        const roles = []
+        modal.find('input[name="roles"]:checked').each(function () {
+            const roleId = $(this).val().split(' ')[0];
+            const roleName = $(this).val().split(' ')[1];
+            roles.push({id: roleId, name: roleName});
+        });
+
+        const userData = {
+            username: username,
+            lastName: lastName,
+            password: password,
+            roles: roles
+        };
+
+        fetch("/admin/adduser", {
+            method: "POST",
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(userData)
+        })
+            .then(response => {
+                if (response.ok) {
+                    console.log("Пользователь успешно добавлен");
+                    form[0].reset();
+                } else {
+                    throw new Error('Ошибка при добавлении пользователя');
+                }
+            })
+            .catch(error => {
+                console.error("Не удалось добавить пользователя:", error.message);
+            });
     }
 
     function submitForm() {
-        $('form').submit();
+        const modal = $('#EditModal');
+        const userId = modal.find('#idEdit').val();
+        const username = modal.find('#usernameEdit').val();
+        const lastName = modal.find('#lastNameEdit').val();
+        const password = modal.find('#passwordEdit').val();
+        const roles = []
+        modal.find('input[name="roles"]:checked').each(function () {
+            const roleId = $(this).val().split(' ')[0];
+            const roleName = $(this).val().split(' ')[1];
+            roles.push({id: roleId, name: roleName});
+        });
+
+        const userData = {
+            id: userId,
+            username: username,
+            lastName: lastName,
+            password: password,
+            roles: roles
+        };
+
+        fetch("/admin/edit", {
+            method: "PUT",
+            headers: {
+                "Content-Type": "application/json"
+            },
+            body: JSON.stringify(userData)
+        })
+            .then(response => response.json())
+            .then(data => {
+                console.log("Данные успешно отправлены на сервер:", data);
+            })
+            .catch(error => {
+                console.error("Ошибка при отправке данных на сервер:", error);
+            });
+        modal.modal('hide');
     }
 </script>
 </body>

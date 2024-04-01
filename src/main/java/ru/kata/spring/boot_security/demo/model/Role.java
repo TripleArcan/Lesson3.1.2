@@ -1,5 +1,6 @@
 package ru.kata.spring.boot_security.demo.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import net.bytebuddy.dynamic.loading.InjectionClassLoader;
 import org.springframework.security.core.GrantedAuthority;
 
@@ -13,10 +14,12 @@ import java.util.Set;
 @Table(name = "roles")
 public class Role implements GrantedAuthority {
 
+    private static final long serialVersionUID = 8472981793707360652L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
 
     @Column(name = "name", unique = true)
     private String name;
@@ -28,6 +31,10 @@ public class Role implements GrantedAuthority {
     public Role(long id, String name) {
         this.id = id;
         this.name = name;
+    }
+
+    public Role(long id) {
+        this.id = id;
     }
 
     public Role() {
@@ -68,6 +75,7 @@ public class Role implements GrantedAuthority {
         this.name = name;
     }
 
+    @JsonIgnore
     @Override
     public String getAuthority() {
         return getName();
