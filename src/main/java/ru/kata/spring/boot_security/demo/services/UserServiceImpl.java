@@ -13,7 +13,6 @@ import java.util.Optional;
 
 
 @Service
-@Transactional
 public class UserServiceImpl implements UserService {
 
     private final UsersRepository usersRepository;
@@ -47,16 +46,24 @@ public class UserServiceImpl implements UserService {
         usersRepository.deleteByUsername(name);
     }
 
-    @Override
-    public String setPasswordEncoder(String password) {
-        return passwordEncoder.encode(password);
-    }
 
 
     @Override
     @Transactional
     public void updateUser(User user) {
-        usersRepository.save(user);
+        User existingUser = getUserById(user.getId());
+
+        String userPass = user.getPassword();
+        String exPass = existingUser.getPassword();
+        if (!userPass.equals(exPass)) {
+            String encodedPassword = passwordEncoder.encode(userPass);
+            existingUser.setPassword(encodedPassword);
+        }
+
+        existingUser.setName(user.getUsername());
+        existingUser.setLastName(user.getLastName());
+        existingUser.setRoles(user.getRoles());
+        usersRepository.save(existingUser);
     }
 
     @Override

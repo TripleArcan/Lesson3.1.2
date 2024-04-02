@@ -37,8 +37,7 @@
 </head>
 <body>
 <nav class="navbar navbar-dark bg-dark">
-    <span class="navbar-brand">Пользователь: <span th:text="${username}"></span> | Роли: <span
-            th:each="authenticationRole : ${authenticationRoles}" th:text="${authenticationRole}"></span></span>
+    <span class="navbar-brand">Пользователь: <span id="usernameauth"></span> | Роли: <span id="roles"></span></span>
 </nav>
 <div class="container-fluid">
     <div class="row">
@@ -183,8 +182,23 @@
         integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM"
         crossorigin="anonymous"></script>
 <script>
+
+    function getCurrentUser() {
+        fetch("/admin/currentuser")
+            .then(response => response.json())
+            .then(data => {
+                // Обновляем элементы на странице с информацией о текущем аутентифицированном пользователе
+                document.querySelector("#usernameauth").innerText = data.username;
+                document.querySelector("#roles").innerText = data.roles.join(", ");
+            })
+            .catch(error => console.error("Ошибка при получении информации о текущем аутентифицированном пользователе:", error));
+    }
+
+    // Вызываем функцию для получения информации о текущем аутентифицированном пользователе при загрузке страницы
+    getCurrentUser();
+
     function getAllUser() {
-        fetch("/admin/adminJSON")
+        fetch("/admin/allUserInfo")
             .then(response => response.json())
             .then(data => {
                 const tableBody = document.querySelector("#tableUsers");
@@ -236,7 +250,7 @@
 
 
     function getUserById(userId) {
-        fetch(`/admin/userByIdJSON?userId=${userId}`)
+        fetch(`/admin/userById?userId=${userId}`)
             .then(response => response.json())
             .then(user => {
                 const modal = $('#EditModal');

@@ -14,8 +14,6 @@ public interface UserService extends UserDetailsService {
 
     void deleteUser(String username);
 
-    String setPasswordEncoder(String password);
-
     void updateUser(User user);
 
     User getUserById(Long id);
