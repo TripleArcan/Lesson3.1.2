@@ -40,7 +40,7 @@ public class AdminRestController {
 
     @GetMapping("/allroles")
     public ResponseEntity<List<Role>> getAllRoles() {
-        List<Role> roles = roleService.getAllRoles(); // Метод getAllRoles() должен быть реализован в вашем сервисе
+        List<Role> roles = roleService.getAllRoles();
         return ResponseEntity.ok(roles);
     }
 
