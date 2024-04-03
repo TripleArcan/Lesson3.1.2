@@ -5,9 +5,12 @@ import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
+import ru.kata.spring.boot_security.demo.repositories.RoleRepository;
 import ru.kata.spring.boot_security.demo.repositories.UsersRepository;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
 
@@ -17,12 +20,15 @@ public class UserServiceImpl implements UserService {
 
     private final UsersRepository usersRepository;
 
+    private final RoleRepository roleRepository;
+
 
     private final PasswordEncoder passwordEncoder;
 
 
-    public UserServiceImpl(UsersRepository usersRepository, PasswordEncoder passwordEncoder) {
+    public UserServiceImpl(UsersRepository usersRepository, RoleRepository roleRepository, PasswordEncoder passwordEncoder) {
         this.usersRepository = usersRepository;
+        this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
     }
 
@@ -36,7 +42,6 @@ public class UserServiceImpl implements UserService {
     @Transactional
     public void addUser(User user) {
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-
         usersRepository.save(user);
     }
 

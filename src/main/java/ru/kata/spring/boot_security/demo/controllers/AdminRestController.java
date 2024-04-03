@@ -6,14 +6,13 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.servlet.ModelAndView;
+import ru.kata.spring.boot_security.demo.model.Role;
 import ru.kata.spring.boot_security.demo.model.User;
 import ru.kata.spring.boot_security.demo.services.RoleService;
+import ru.kata.spring.boot_security.demo.services.RoleServiceImpl;
 import ru.kata.spring.boot_security.demo.services.UserService;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 import java.util.stream.Collectors;
 
 
@@ -22,8 +21,11 @@ import java.util.stream.Collectors;
 public class AdminRestController {
     private final UserService userService;
 
-    public AdminRestController(UserService userService) {
+    private final RoleService roleService;
+
+    public AdminRestController(UserService userService, RoleService roleService) {
         this.userService = userService;
+        this.roleService = roleService;
     }
 
     @GetMapping("/allUserInfo")
@@ -34,6 +36,12 @@ public class AdminRestController {
     @GetMapping("/userById")
     public User getUserById(@RequestParam("userId") Long id) {
         return userService.getUserById(id);
+    }
+
+    @GetMapping("/allroles")
+    public ResponseEntity<List<Role>> getAllRoles() {
+        List<Role> roles = roleService.getAllRoles(); // Метод getAllRoles() должен быть реализован в вашем сервисе
+        return ResponseEntity.ok(roles);
     }
 
     @GetMapping("/currentuser")

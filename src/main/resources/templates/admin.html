@@ -114,8 +114,7 @@
                                             <div class="form-group">
                                                 <label for="newRoles">Role</label>
                                                 <select multiple class="form-control" id="newRoles" name="roles">
-                                                    <option value="8 ROLE_ADMIN">Admin</option>
-                                                    <option value="7 ROLE_USER">User</option>
+
                                                 </select>
                                             </div>
                                             <button type="submit" class="btn btn-primary" onclick="addUser()">Добавить</button>
@@ -154,16 +153,12 @@
                     <input class="form-control" type="password"
                            id="passwordEdit">
                     <br/>
-                    <p>
-                        <label>Roles:</label><br/>
-                        <label>
-                            <input type="checkbox" name="roles" value="8 ROLE_ADMIN"/>
-                        </label> Admin<br/>
-                        <label>
-                            <input type="checkbox" name="roles" value="7 ROLE_USER"/>
-                        </label> User<br/>
-                    </p>
-                    <button type="submit" class="btn btn-primary">Save changes</button>
+                    <div class="form-group">
+                        <label for="EditRoles">Role:</label>
+                        <select multiple class="form-control" id="EditRoles" name="editRoles">
+
+                        </select>
+                    </div>
                 </form>
             </div>
             <div class="modal-footer">
@@ -187,14 +182,12 @@
         fetch("/admin/currentuser")
             .then(response => response.json())
             .then(data => {
-                // Обновляем элементы на странице с информацией о текущем аутентифицированном пользователе
                 document.querySelector("#usernameauth").innerText = data.username;
                 document.querySelector("#roles").innerText = data.roles.join(", ");
             })
             .catch(error => console.error("Ошибка при получении информации о текущем аутентифицированном пользователе:", error));
     }
 
-    // Вызываем функцию для получения информации о текущем аутентифицированном пользователе при загрузке страницы
     getCurrentUser();
 
     function getAllUser() {
@@ -225,6 +218,26 @@
             })
             .catch(error => console.error("Ошибка загрузки пользователей:", error));
     }
+
+    function getAllRoles() {
+        fetch("/admin/allroles")
+            .then(response => response.json())
+            .then(roles => {
+                const newRoles = document.querySelector("#newRoles");
+                const rolesEdit = document.querySelector("#EditRoles");
+                roles.forEach(role => {
+                    const option = document.createElement("option");
+                    option.value = role.name;
+                    option.textContent = role.name;
+                    option.setAttribute('data-role-id', role.id); // Установка атрибута data-role-id
+                    newRoles.appendChild(option.cloneNode(true));
+                    rolesEdit.appendChild(option);
+                });
+            })
+            .catch(error => console.error("Ошибка загрузки ролей:", error));
+    }
+
+    getAllRoles();
 
     getAllUser();
 
@@ -276,12 +289,9 @@
         const username = modal.find('#username').val();
         const lastName = modal.find('#lastName').val();
         const password = modal.find('#password').val();
-        const roles = []
-        modal.find('input[name="roles"]:checked').each(function () {
-            const roleId = $(this).val().split(' ')[0];
-            const roleName = $(this).val().split(' ')[1];
-            roles.push({id: roleId, name: roleName});
-        });
+        const roles = [];
+        modal.find('#newRoles').val().map(roleId => parseInt(roleId));
+
 
         const userData = {
             username: username,
@@ -317,9 +327,9 @@
         const lastName = modal.find('#lastNameEdit').val();
         const password = modal.find('#passwordEdit').val();
         const roles = []
-        modal.find('input[name="roles"]:checked').each(function () {
-            const roleId = $(this).val().split(' ')[0];
-            const roleName = $(this).val().split(' ')[1];
+        modal.find('#EditRoles option:selected').each(function() {
+            const roleId = $(this).data('role-id');
+            const roleName = $(this).text();
             roles.push({id: roleId, name: roleName});
         });
 
